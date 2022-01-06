@@ -1,0 +1,21 @@
+//teamcity script
+// Runner type: PowerShell
+
+try
+{
+  $web = Invoke-WebRequest -Uri "http://zeus01/guestAuth/app/rest/2018.1/changes?locator=build:(id:%teamcity.build.id%)" -Method Get -UseBasicParsing
+  Write-Output "response = $web"
+  
+  [xml]$content = $response.Content
+  $changelist = $content.changes.change.version
+  Write-Output "changeids = $changelist"
+
+  $filePath = "%teamcity.build.workingDir%\Game\Share\ToolBinaries\SmartCommitter\SmartCommitter.exe"
+  Write-Output $filePath
+  &$filePath $changelist 
+}
+catch
+{
+  Write-Error $Error[0]
+  exit -3
+}
